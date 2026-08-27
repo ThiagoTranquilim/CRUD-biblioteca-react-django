@@ -1,3 +1,17 @@
 from django.test import TestCase
 
-# Create your tests here.
+"""
+
+test_criar_livro_com_dados_validos
+test_nao_criar_livro_sem_titulo
+test_nao_criar_livro_com_titulo_vazio
+test_nao_criar_livro_com_titulo_maior_que_100
+test_nao_criar_livro_com_numero_paginas_negativo
+test_nao_criar_livro_com_zero_paginas
+test_nao_criar_livro_com_valor_negativo
+test_nao_criar_livro_com_data_invalida
+test_nao_criar_livro_sem_autor
+test_nao_criar_livro_com_autor_inexistente
+test_criar_livro_associado_ao_autor_correto
+
+"""
