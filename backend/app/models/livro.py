@@ -13,12 +13,17 @@ class Livro(models.Model):
     )
 
     n_paginas = models.IntegerField(
-        validators=[MinValueValidator(1)]
+        validators=[
+            MinValueValidator(
+                1,
+                message="O número de páginas deve ser maior que zero."
+            )
+        ]
     )
 
     autor = models.ForeignKey(
         Autor,
-        on_delete=models.CASCADE
+        on_delete=models.PROTECT,
     )
     genero = models.CharField(
         max_length=100
@@ -27,7 +32,10 @@ class Livro(models.Model):
         max_digits=10,
         decimal_places=2,
         validators=[
-            MinValueValidator(Decimal('0.01'))
+            MinValueValidator(
+                Decimal("0.00"),
+                message="O valor não pode ser negativo."
+            )
         ]
     )
     data_de_criacao = models.DateField()
