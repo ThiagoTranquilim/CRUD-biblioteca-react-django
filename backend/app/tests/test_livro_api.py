@@ -94,10 +94,11 @@ test_livro_delete.py
 # assert response.status_code
 # assert campo in response.data
 # assert str(response.data[campo][0]==mensagem)
+# uso o assert_erro_validacao para isso
 
 # caso POST
 # assert Livro.objects.count() == 0
-# quandp realmente nenhum livro deveria ter sido criado
+# quando realmente nenhum livro deveria ter sido criado
 def test_nao_criar_livro_com_campos_invalidos(
     dados_livro,
     campo,
@@ -116,3 +117,21 @@ def test_nao_criar_livro_com_campos_invalidos(
     )
 
     assert Livro.objects.count() == 0
+
+@pytest.mark.django_db
+def test_nao_criar_livro_com_autor_inexistente(
+        dados_livro,
+        post_livro
+):
+    dados_livro["autor_id"] = 999999
+
+    quantidade_antes = Livro.objects.count()
+
+    response = post_livro(dados_livro)
+
+    assert_erro_validacao(
+        response=response,
+        campo="autor_id",
+        mensagem="O autor informado não existe."
+    )
+    assert Livro.objects.count() == quantidade_antes

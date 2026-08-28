@@ -15,6 +15,11 @@ def assert_erro_validacao(
 
     assert campo in response.data
 
-    assert str(
+    mensagem_recebida = str(
         response.data[campo][0]
-    ) == mensagem
+    )
+
+    assert mensagem_recebida == mensagem, (
+        f"\nMensagem esperada: {mensagem!r}"
+        f"\nMensagem recebida: {mensagem_recebida!r}"
+    )

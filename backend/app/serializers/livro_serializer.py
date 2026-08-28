@@ -28,7 +28,11 @@ class LivroSerializer(serializers.ModelSerializer):
         queryset=Autor.objects.all(),
         source='autor',
         write_only=True,
-        required=False
+        required=False,
+        error_messages={
+            "does_not_exist": "O autor informado não existe.",
+            "incorrect_type": "O autor informado é inválido."
+        }
     )
 
 
