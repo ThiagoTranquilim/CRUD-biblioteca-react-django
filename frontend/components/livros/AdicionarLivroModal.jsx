@@ -1,30 +1,161 @@
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { getAutores } from "../../src/services/api";
 
 const LivroInicial = {
     titulo: "",
     n_paginas: "",
     genero: "",
     valor: "",
-    data_de_criacao: ""
+    data_de_criacao: "",
+    anonimo: false,
+    autor_id: ""
 };
 
-function AdicionarLivroModal({
+function ErroCampo({ erro }) {
+        if (!erro) return null;
+
+        return (
+            <div className="erro">
+                <p>{erro.message}</p>
+            </div>
+        );
+}
+
+/*
+
+Validações nos inputs
+
+*/
+const validacoes = {
+    titulo: {
+        required:
+            "O título é obrigatório.",
+
+        minLength: {
+
+            value: 2,
+            message:
+
+                "O títuo deve possuir pelo menos 2 caracteres."
+        }
+    },
+
+    n_paginas: {
+
+        required:
+            "O número de páginas é obrigatório.",
+
+            valueAsNumber: true,
+
+            min:{
+
+                value: 1,
+                message:
+
+                    "O número de páginas deve er maior que 0."
+            }
+
+    },
+
+    genero: {
+
+        required:
+            "O gênero é obrigatório.",
+
+            minLength: {
+                value: 2,
+                message:
+
+                    "O gênero deve possuir pelo menos 2 caracteres."
+            }
+    },
+
+    valor: {
+        required:
+            "O valor é orbigatório.",
+
+            valueAsNumber:{
+                    value:0,
+                    message:
+
+                        "O valor não pode ser negativo."
+            }
+    },
+
+    data_de_criacao: {
+        required:
+            "A data de criação é obrigatória."
+    },
+
+    autor_id: {
+        required:
+            "Seecione um autor",
+
+        setValueAs: (value) =>
+            value === ""
+                ? undefined
+                : Number(value)
+    }
+}
+
+
+/*
+
+Function para cadastrar livros pelo modal
+
+*/
+function CadastroLivro({
     aberto,
     onFechar,
     onAdicionar
 }) {
+    const [autores, setAutores] = useState([]);
+
+
+
     const {
         register,
         handleSubmit,
         reset,
         setError,
+        control,
         formState: {
             errors,
             isSubmitting
         }
     } = useForm({
-        defaultValues: LivroInicial
+        defaultValues: LivroInicial,
+        shouldUnregister: true
     });
+
+    const anonimo = useWatch({
+        control,
+        name: "anonimo",
+    });
+
+    useEffect(() => {
+
+        if (!aberto) {
+            return;
+        }
+
+        async function carregarAutores() {
+            try {
+
+                const dados = await getAutores();
+                setAutores(dados)
+
+            } catch (error) {
+                setError("root.servidor", {
+                    type: "server",
+                    message: error.message
+                });
+            }
+        }
+
+        carregarAutores();
+    }, [aberto, setError]);
 
     if (!aberto) {
         return null;
@@ -73,154 +204,126 @@ function AdicionarLivroModal({
                     onSubmit={handleSubmit(adicionarLivro)}
                 >
                     <div className="campo-formulario">
-                        <label>
-                            Título
-                        </label>
+                        <label>Título</label>
 
                         <input
                             type="text"
-                            placeholder="Digite o título do livro"
-                            {...register("titulo", {
-                                required:
-                                    "O título é obrigatório",
-
-                                minLength: {
-                                    value: 2,
-                                    message:
-                                        "O título deve possuir pelo menos 2 caracteres"
-                                }
-                            })}
+                            {...register(
+                                "titulo",
+                                validacoes.titulo
+                            )}
                         />
 
-                        {errors.titulo && (
-                            <div className="erro">
-                                <p>
-                                    {errors.titulo.message}
-                                </p>
-                            </div>
-                        )}
+                        <ErroCampo erro={
+                            errors.titulo
+                        } />
                     </div>
 
                     <div className="campo-formulario">
-                        <label>
-                            Número de páginas
-                        </label>
+                        <label>Número de páginas</label>
 
                         <input
                             type="number"
-                            placeholder="Digite o número de páginas"
-                            {...register("n_paginas", {
-                                required:
-                                    "O número de páginas é obrigatório",
-
-                                valueAsNumber: true,
-
-                                min: {
-                                    value: 1,
-                                    message:
-                                        "O número de páginas deve ser maior que 0"
-                                }
-                            })}
+                            {...register(
+                                "n_paginas",
+                                validacoes.n_paginas
+                            )}
                         />
 
-                        {errors.n_paginas && (
-                            <div className="erro">
-                                <p>
-                                    {errors.n_paginas.message}
-                                </p>
-                            </div>
-                        )}
+                        <ErroCampo erro={
+                            errors.n_paginas
+                        } />
                     </div>
 
                     <div className="campo-formulario">
-                        <label>
-                            Gênero
-                        </label>
+                        <label>Gênero</label>
 
                         <input
                             type="text"
-                            placeholder="Ex: Fantasia"
-                            {...register("genero", {
-                                required:
-                                    "O gênero é obrigatório",
-
-                                minLength: {
-                                    value: 2,
-                                    message:
-                                        "O gênero deve possuir pelo menos 2 caracteres"
-                                }
-                            })}
+                            {...register(
+                                "genero",
+                                validacoes.genero
+                            )}
                         />
 
-                        {errors.genero && (
-                            <div className="erro">
-                                <p>
-                                    {errors.genero.message}
-                                </p>
-                            </div>
-                        )}
+                        <ErroCampo erro={
+                            errors.genero
+                        } />
                     </div>
 
                     <div className="campo-formulario">
-                        <label>
-                            Valor
-                        </label>
+                        <label>Valor</label>
 
                         <input
                             type="number"
-                            step="0.01"
-                            placeholder="Ex: 49.90"
-                            {...register("valor", {
-                                required:
-                                    "O valor é obrigatório",
-
-                                valueAsNumber: true,
-
-                                min: {
-                                    value: 0,
-                                    message:
-                                        "O valor não pode ser negativo"
-                                }
-                            })}
+                            {...register(
+                                "valor",
+                                validacoes.valor
+                            )}
                         />
 
-                        {errors.valor && (
-                            <div className="erro">
-                                <p>
-                                    {errors.valor.message}
-                                </p>
-                            </div>
-                        )}
+                        <ErroCampo erro={
+                            errors.valor
+                        } />
                     </div>
 
                     <div className="campo-formulario">
-                        <label>
-                            Data de criação
-                        </label>
+                        <label>Data de criação</label>
 
                         <input
                             type="date"
                             {...register(
                                 "data_de_criacao",
-                                {
-                                    required:
-                                        "A data de criação é obrigatória"
-                                }
+                                validacoes.data_de_criacao
                             )}
                         />
 
-                        {errors.data_de_criacao && (
-                            <div className="erro">
-                                <p>
-                                    {
-                                        errors
-                                            .data_de_criacao
-                                            .message
-                                    }
-                                </p>
-                            </div>
-                        )}
+                        <ErroCampo erro={
+                            errors.data_de_criacao
+                        } />
                     </div>
+
+                    <div className="campo-formulario">
+                        <label>
+                            <input
+                                type="checkbox"
+                                {...register("anonimo")}
+                            />
+
+                            Autor anônimo
+                        </label>
+                    </div>
+
+                    {!anonimo && (
+                        <div className="campo-formulario">
+
+                            <label>Autor</label>
+
+                            <select
+                                {...register(
+                                    "autor_id",
+                                    validacoes.autor_id
+                                )}
+                            >
+                                <option value="">
+                                    Selecione um autor
+                                </option>
+
+                                {autores.map((autor) => (
+                                    <option
+                                        key={autor.id}
+                                        value={autor.id}
+                                    >
+                                        {autor.nome}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <ErroCampo erro={
+                                errors.autor_id
+                        } />
+                        </div>
+                    )}
 
                     {errors.root?.servidor && (
                         <div className="erro">
@@ -259,4 +362,4 @@ function AdicionarLivroModal({
     );
 }
 
-export default AdicionarLivroModal;
+export default CadastroLivro;

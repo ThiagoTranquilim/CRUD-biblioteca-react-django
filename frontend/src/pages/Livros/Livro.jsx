@@ -9,6 +9,7 @@ import LivroDetalhesModal from "../../../components/livros/LivroDetalhesModel";
 import AdicionarLivroModal from "../../../components/livros/AdicionarLivroModal";
 
 function Livros() {
+
     const {
         livros,
         loading,
@@ -36,6 +37,7 @@ function Livros() {
     const [livroSelecionado, setLivroSelecionado] = useState(null);
 
     // Modal adicionar
+
     const [modalAdicionar, setModalAdicionar] = useState(false);
 
     const livrosFiltrados = useMemo(() => {
@@ -144,7 +146,7 @@ function Livros() {
                         setModalAdicionar(true)
                     }
                 >
-                    + Adicionar Livro Anônimo
+                    + Adicionar Livro
                 </button>
             </header>
 
