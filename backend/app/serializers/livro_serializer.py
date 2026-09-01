@@ -101,6 +101,9 @@ class LivroSerializer(serializers.ModelSerializer):
         }
 
 
+
+
+
     def validate_data_de_criacao(self, value):
 
         if value > timezone.localdate():
@@ -109,6 +112,10 @@ class LivroSerializer(serializers.ModelSerializer):
             )
 
         return value
+
+
+
+
 
     def validate(self, attrs):
 
@@ -126,19 +133,49 @@ class LivroSerializer(serializers.ModelSerializer):
         return attrs
 
 
+
+
+
     def create(self, validated_data):
 
         anonimo = validated_data.pop("anonimo", False)
 
         if anonimo:
-            autor_anonimo, _ = Autor.objects.get_or_create(
-                nome="Anônimo",
-                defaults={
-                    "idade": 0,
-                    "genero_favorito": "?"
-                }
-            )
-
-            validated_data["autor"] = autor_anonimo
+            validated_data["autor"] = self._obter_autor_anonimo()
 
         return Livro.objects.create(**validated_data)
+
+
+
+
+
+
+    def update(self, instance, validated_data):
+
+        anonimo = validated_data.pop("anonimo", False)
+
+        if anonimo:
+            validated_data["autor"] = self._obter_autor_anonimo()
+
+
+        return super().update(
+            instance,
+            validated_data
+        )
+
+
+
+
+
+
+    def _obter_autor_anonimo(self):
+
+        autor, _ = Autor.objects.get_or_create(
+            nome="Anônimo",
+            defaults={
+                "idade": 0,
+                "genero_favorito": "?"
+            }
+        )
+
+        return autor

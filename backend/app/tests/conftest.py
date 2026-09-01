@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 import pytest
@@ -41,7 +42,7 @@ def livro(autor):
         autor=autor,
         genero="Fantasia",
         valor=Decimal("59.90"),
-        data_de_criacao="1954-07-29"
+        data_de_criacao=date(1954, 7, 29)
     )
 
 
