@@ -1,10 +1,13 @@
+from decimal import Decimal
+
 from django.utils import timezone
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from app.models.livro import Livro
 from app.models.autor import Autor
-from decimal import Decimal
+from app.models.livro import Livro
+
 
 class LivroSerializer(serializers.ModelSerializer):
 
@@ -29,6 +32,7 @@ class LivroSerializer(serializers.ModelSerializer):
         source='autor',
         write_only=True,
         required=False,
+        allow_null=True,
         error_messages={
             "does_not_exist": "O autor informado não existe.",
             "incorrect_type": "O autor informado é inválido."
@@ -68,6 +72,13 @@ class LivroSerializer(serializers.ModelSerializer):
             "n_paginas": {
                 "min_value": 1,
                 "error_messages": {
+
+                    "required":
+                        "O número de páginas é obrigatório.",
+                    "null":
+                        "O número de páginas é obrigatório.",
+                    "invalid":
+                        "Informe um número de páginas válido.",
                     "min_value":
                         "O número de páginas deve ser maior que zero."
                 }
@@ -76,8 +87,15 @@ class LivroSerializer(serializers.ModelSerializer):
             "valor": {
                 "min_value": Decimal("0.00"),
                 "error_messages": {
+
+                    "required":
+                        "O valor é obrigatório.",
+                    "null":
+                        "O valor é obrigatório.",
+                    "invalid":
+                        "Informe um valor válido.",
                     "min_value":
-                        "O valor não pode ser negativo."
+                        "O valor não pode ser negativo.",
                 }
             }
         }
@@ -97,10 +115,14 @@ class LivroSerializer(serializers.ModelSerializer):
         anonimo = attrs.get("anonimo", False)
         autor = attrs.get("autor")
 
+        if self.instance and "autor" not in attrs:
+            autor = self.instance.autor
+
         if not anonimo and not autor:
             raise serializers.ValidationError({
                 "autor_id": "O autor deve ser fornecido."
             })
+
         return attrs
 
 

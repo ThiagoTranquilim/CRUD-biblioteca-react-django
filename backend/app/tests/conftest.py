@@ -1,7 +1,10 @@
+from decimal import Decimal
+
 import pytest
 
 from rest_framework.test import APIClient
-from app.models import Autor
+from app.tests.clients.livro_api import LivroAPI
+from app.models import Autor, Livro
 
 
 # As fixtures são usadas para preparar o ambiente,
@@ -14,9 +17,13 @@ from app.models import Autor
 def api_client():
     return APIClient()
 
+@pytest.fixture
+def livro_api(api_client):
+    return LivroAPI(api_client)
+
 
 @pytest.fixture
-def autor():
+def autor(db):
     return Autor.objects.create(
         nome="J. R. R. Tolkien",
         idade=81,
@@ -24,7 +31,26 @@ def autor():
     )
 
 @pytest.fixture
+def livro(autor):
+
+    # Representa um registro real no banco
+
+    return Livro.objects.create(
+        titulo="O Senhor dos Anéis",
+        n_paginas=1216,
+        autor=autor,
+        genero="Fantasia",
+        valor=Decimal("59.90"),
+        data_de_criacao="1954-07-29"
+    )
+
+
+
+@pytest.fixture
 def dados_livro(autor):
+    # Diferente de livro
+    # dados_livro representa o payload da API
+
     return {
         "titulo": "O Senhor dos Anéis",
         "n_paginas": 1216,
@@ -34,40 +60,3 @@ def dados_livro(autor):
         "valor": 59.90,
         "data_de_criacao": "1954-07-29"
     }
-
-@pytest.fixture
-def post_livro(api_client):
-    def _post_livro(dados):
-        return api_client.post(
-            "/livro/",
-            dados,
-            format="json"
-        )
-    return _post_livro
-
-@pytest.fixture
-def get_livros(api_client):
-    def _get_livros():
-        return api_client.get(
-            "/livro/",
-            format="json"
-        )
-    return _get_livros
-
-@pytest.fixture
-def patch_livro(api_client):
-    def _patch_livro():
-        return api_client.patch(
-            "/livro/",
-            format="json"
-        )
-    return _patch_livro
-
-@pytest.fixture
-def delete_livro(api_client):
-    def _delete_livro():
-        return api_client.delete(
-            "/livro/",
-            format="json"
-        )
-    return _delete_livro
